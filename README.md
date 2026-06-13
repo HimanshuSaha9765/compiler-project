@@ -8,15 +8,14 @@
 
 > A production-quality, web-based compiler front-end that visually demonstrates all major compiler design phases – with an AI-powered Fix-It engine that takes code to 100% Health.
 
-**Live Demo:** `https://compiler-project-xxxx.onrender.com` ← Replace with your Render URL after Phase 10 deploy  
-**Course:** Compiler Design – Semester End Project – 2026
+**Live Demo:** `https://compilex-q5ee.onrender.com/` 
 
 ---
 
 ### Screenshot
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│  CompilerX  |  Compiler Workspace    [Load Sample][Clear][Export▼] │
+│ CompilerX | Compiler Workspace[Load Sample][Clear][Export▼] │
 ├──────────────────────────┬──────────────────────────────────┤
 │  Source Code Editor      │  Analysis Results                │
 │  int a = 10;             │  ● Overview | Tokens | Syntax …  │
@@ -66,7 +65,7 @@ Dark VS Code / GitHub inspired UI. Fully responsive.
 
 ```powershell
 # 1. Clone
-git clone https://github.com/YOUR_USERNAME/compiler-project.git
+git clone https://github.com/HimanshuSaha9765/compiler-project.git
 cd compiler_project
 
 # 2. Virtual env (Windows)
@@ -151,18 +150,12 @@ compiler_project/
 │   ├── js/analyzer.js
 │   ├── js/export.js
 │   └── js/suggestions.js
-├── templates/
-│   ├── base.html
-│   ├── landing.html
-│   ├── workspace.html
-│   └── error.html
-└── docs/
-    ├── installation_guide.md
-    ├── user_manual.md
-    ├── architecture.md
-    ├── flowchart.md
-    ├── project_report.md
-    └── viva_qa.md
+└── templates/
+    ├── base.html
+    ├── landing.html
+    ├── workspace.html
+    └── error.html
+
 ```
 
 ---
@@ -180,7 +173,7 @@ compiler_project/
 | GET | `/api/sample?id=1..5` | Sample code – includes broken code sample for testing Fix-It |
 | GET | `/export/pdf` | Download PDF report |
 | GET | `/export/text` | Download text report |
-| GET | `/health` | Health check – `{"status":"ok","version":"1.1.0"}` |
+
 
 ---
 
@@ -205,25 +198,16 @@ Labels: 90-100 Excellent, 70-89 Good, 50-69 Fair, 30-49 Poor, 0-29 Critical
 
 ---
 
-### Screenshots
-
-*Add 3 screenshots to `docs/screenshots/` after deployment:*
-1. `landing.png` – Landing page hero
-2. `workspace_analysis.png` – Workspace with 8 tabs open
-3. `suggestions.png` – Suggestions tab showing Health 68 → 100 auto-fix
-
----
 
 ### Deployment – Render.com Free
 
-1. Push to GitHub (see `docs/installation_guide.md`)
+1. Push to GitHub
 2. https://render.com → New → Web Service → Connect GitHub repo
 3. Build Command: `pip install -r requirements.txt`
 4. Start Command: `gunicorn app:app`
 5. Add Environment Variable (optional): `GROQ_API_KEY=gsk_xxx`
 6. Deploy – 3 min – Live URL provided
 
-Full step-by-step with screenshots: `docs/installation_guide.md`
 
 ---
 
@@ -244,20 +228,8 @@ Run: `python -m pytest tests/ -v --cov`
 
 ---
 
-### Documentation
-
-- `docs/installation_guide.md` – Windows 10 + VS Code setup, GitHub, Render
-- `docs/user_manual.md` – How to use every tab, export reports
-- `docs/architecture.md` – System architecture, Flask request flow, module interaction
-- `docs/flowchart.md` – Compiler phases flowchart (Mermaid)
-- `docs/project_report.md` – Full academic project report – Abstract, Introduction, Literature, Design, Implementation, Testing, Results, Conclusion, References
-- `docs/viva_qa.md` – 30 viva questions & detailed answers – compiler theory + Flask + testing + your implementation
-
----
-
 ### License
-
-Academic Project – Compiler Design Course – 2026  
+ 
 Free for educational use.
 
 ---
@@ -265,6 +237,5 @@ Free for educational use.
 ### Author
 
 Built with ❤️ using Python + Flask  
-Mentor-guided – Senior Compiler Engineer / Python / UI/UX / QA – Arena.ai Agent Mode
 
 **CompilerX – Analyze Your Code. Understand Your Compiler.**
