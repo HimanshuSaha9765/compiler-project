@@ -1,4 +1,3 @@
-# CompilerX - Scope Analyzer Tests
 from lexer.lexer import analyze_lexical
 from analyzer.symbol_table import build_symbol_table
 from analyzer.scope_analyzer import analyze_scope

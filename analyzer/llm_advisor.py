@@ -1,11 +1,6 @@
-# CompilerX - LLM Advisor (Optional AI Explanations)
-# Phase 8.2 - Groq / Gemini integration
-# 100% optional - app works fully offline without this
-
 import os
 import json
 
-# Try to load .env if present (optional)
 try:
     from dotenv import load_dotenv
     load_dotenv()
@@ -13,7 +8,6 @@ except Exception:
     pass
 
 def get_llm_provider():
-    """Detect which LLM provider is configured"""
     groq_key = os.getenv('GROQ_API_KEY', '').strip()
     gemini_key = os.getenv('GEMINI_API_KEY', '').strip()
     provider = os.getenv('LLM_PROVIDER', 'auto').lower()
@@ -27,10 +21,6 @@ def get_llm_provider():
     return None, None
 
 def ai_explain_suggestion(source_code, suggestion, diagnostics):
-    """
-    Get a friendly AI explanation for a compiler suggestion
-    Falls back gracefully if no API key / no internet / version mismatch
-    """
     provider, api_key = get_llm_provider()
     if not provider:
         return {
@@ -80,7 +70,6 @@ def _call_groq(prompt, api_key):
     except ImportError as e:
         return {'success': False, 'explanation': '', 'provider': 'groq', 'reason': f'groq package not installed. Run: pip install groq httpx==0.27.2 --force-reinstall. Error: {e}'}
     
-    # Groq client init – handle httpx version incompatibility (proxies arg removed in httpx 0.28)
     try:
         client = Groq(api_key=api_key)
     except TypeError as e:

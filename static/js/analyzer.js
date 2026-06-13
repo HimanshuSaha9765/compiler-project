@@ -1,6 +1,3 @@
-// CompilerX - Analyzer Frontend
-// Phase 3-8 - robust version
-
 (function() {
   function initAnalyzer() {
     const btnAnalyze = document.getElementById('btnAnalyze');
@@ -48,7 +45,6 @@
         });
         const data = await res.json();
         if (!res.ok || data.success === false) {
-          // If backend says not implemented, show friendly UI (Phase 3 fallback)
           if (res.status === 501) {
             renderEngineNotReady(data, code);
             return;
@@ -212,7 +208,6 @@ Analysis time: ${d.analysis_time_ms ?? '--'} ms
 
     function escapeHtml(s) { return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-    // token filter
     const tf = document.getElementById('tokenFilters');
     if (tf) tf.addEventListener('click', e => {
       if (e.target.tagName !== 'BUTTON') return;

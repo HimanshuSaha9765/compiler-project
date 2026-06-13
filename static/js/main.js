@@ -1,9 +1,5 @@
-// CompilerX - Global JavaScript
-// Phase 3-8
-
 console.log('CompilerX main.js loaded');
 
-// Safe toast - works even if Bootstrap is not loaded
 function showToast(message, type = 'info') {
     console.log('[TOAST ' + type + '] ' + message);
     try {
@@ -16,6 +12,5 @@ function showToast(message, type = 'info') {
             return;
         }
     } catch(e) {}
-    // Fallback: non-blocking, do nothing else (avoid alert spam)
 }
 window.showToast = showToast;

@@ -1,6 +1,3 @@
-// CompilerX - Suggestions UI
-// Phase 8.1 Rule-based + Phase 8.2 LLM
-
 (function(){
   let currentSuggestions = [];
   let lastFixedCode = '';
@@ -18,7 +15,7 @@
   const aiBox = document.getElementById('aiExplanationBox');
   const aiBadge = document.getElementById('aiBadge');
 
-  if (!listEl) return; // not on workspace page
+  if (!listEl) return; 
 
   function getCode() {
     if (window.cxEditor && window.cxEditor.getCode) return window.cxEditor.getCode();
@@ -63,12 +60,10 @@
         }
       }
       
-      // Auto-run autofix preview
       if (autoFixable > 0) {
         runAutofixPreview();
       }
-      
-      // Update pill on Overview tab
+
       const pill = document.getElementById('suggestionPill');
       const pillCount = document.getElementById('suggestionPillCount');
       if (pill && pillCount) {
@@ -111,15 +106,14 @@
         <div class="ai-explain-result small mt-2 text-info" id="ai-exp-${s.suggestion_id}" style="display:none"></div>
       </div>`;
     }).join('');
-    
-    // bind apply single
+
     listEl.querySelectorAll('.btn-apply-single').forEach(btn => {
       btn.addEventListener('click', () => {
         const sid = parseInt(btn.dataset.sid);
         runAutofixPreview([sid]);
       });
     });
-    // bind AI explain
+
     listEl.querySelectorAll('.btn-ai-explain').forEach(btn => {
       btn.addEventListener('click', () => aiExplain(parseInt(btn.dataset.sid), btn));
     });
@@ -179,7 +173,6 @@
 
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
 
-  // Bind UI
   if (btnRefresh) btnRefresh.addEventListener('click', loadSuggestions);
   if (btnApplyAll) btnApplyAll.addEventListener('click', () => runAutofixPreview(null));
   if (btnCopyFixed) btnCopyFixed.addEventListener('click', async () => {
@@ -202,15 +195,12 @@
     if (window.showToast) showToast('Code replaced – re-analyzing…');
   });
 
-  // Auto-load suggestions after a successful analysis
-  // Hook into analyzer.js – if renderResults runs, trigger suggestions
   const originalRenderResults = window.renderResults;
-  // Instead, just listen for a custom event – simpler: poll for resultsContent becoming visible
+
   const resultsContent = document.getElementById('resultsContent');
   if (resultsContent) {
     const observer = new MutationObserver(() => {
       if (!resultsContent.classList.contains('d-none')) {
-        // results just appeared – auto load suggestions after 400ms
         setTimeout(loadSuggestions, 400);
         observer.disconnect();
       }
@@ -218,14 +208,12 @@
     observer.observe(resultsContent, {attributes: true, attributeFilter: ['class']});
   }
 
-  // Goto suggestions link from Overview pill
   document.getElementById('gotoSuggestionsLink')?.addEventListener('click', (e) => {
     e.preventDefault();
     const tabBtn = document.getElementById('suggestionsTabBtn');
     if (tabBtn && window.bootstrap) new bootstrap.Tab(tabBtn).show();
   });
 
-  // expose for manual testing
   window.cxLoadSuggestions = loadSuggestions;
   console.log('CompilerX suggestions.js initialized');
 })();

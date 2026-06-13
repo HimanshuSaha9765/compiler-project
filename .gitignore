@@ -1,7 +1,3 @@
-# CompilerX - Git Ignore File
-# Files and folders Git should NOT track
-
-# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -24,14 +20,12 @@ wheels/
 *.egg
 MANIFEST
 
-# Virtual Environment
 venv/
 env/
 ENV/
 .venv/
 .ENV/
 
-# Testing / Coverage
 htmlcov/
 .tox/
 .nox/
@@ -43,12 +37,10 @@ coverage.xml
 *.cover
 .hypothesis/
 
-# VS Code
 .vscode/
 *.code-workspace
 .history/
 
-# OS Files
 .DS_Store
 .DS_Store?
 ._*
@@ -59,21 +51,16 @@ Thumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
-# Flask
 instance/
 .webassets-cache
 
-# Logs
 *.log
 
-# Environment variables
 .env
 .env.local
 
-# Exported reports (generated at runtime)
 *.pdf
 *.txt
 !requirements.txt
 
-# PyCharm
 .idea/

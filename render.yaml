@@ -1,7 +1,3 @@
-# CompilerX - Render Deployment Configuration
-# This file tells Render.com how to deploy your app
-# Do NOT modify unless you know what you're doing
-
 services:
   - type: web
     name: compiler-project

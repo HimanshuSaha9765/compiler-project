@@ -1,4 +1,3 @@
-# CompilerX - Symbol Table Tests
 from lexer.lexer import analyze_lexical
 from analyzer.symbol_table import build_symbol_table
 
@@ -24,13 +23,11 @@ def test_function_declaration_is_recorded():
 def test_scope_level_assignment_is_correct():
     r = sym("int x; int main(){ int y; }")
     levels = {s['name']: s['scope_level'] for s in r['symbols']}
-    # x should be global (0), y local (>=1) if detected
     assert 'x' in levels
 
 def test_global_vs_local_scope_distinction():
     r = sym("int g; int f(){ int l; }")
     assert r['global_count'] >= 1
-    # local_count may be 0 if parser is simple – just check fields exist
     assert 'local_count' in r
 
 def test_empty_input_returns_empty_symbol_table():

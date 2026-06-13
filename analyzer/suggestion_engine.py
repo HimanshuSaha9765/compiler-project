@@ -1,22 +1,13 @@
-# CompilerX - Suggestion Engine (Rule-Based)
-# Phase 8.1 - Auto-fix to 100% Health
-# Advanced v2 - handles orphan identifiers, type mismatches, C/C++/Java
-
 import re
 
 def generate_suggestions(parser_result, error_result, symbol_table, source_code, lexer_result=None):
-    """
-    Convert compiler errors into actionable fix suggestions
-    Returns list of suggestions sorted by health impact
-    """
     suggestions = []
     sid = 1
     lines = source_code.split('\n')
     
     def get_line(n):
         return lines[n-1] if 1 <= n <= len(lines) else ""
-    
-    # 1. Syntax errors -> fix suggestions
+
     for err in parser_result.get('errors', []):
         msg = err['error_message']
         line_num = err['line_number']
@@ -70,8 +61,6 @@ def generate_suggestions(parser_result, error_result, symbol_table, source_code,
             fixed_snippet = line_text.rstrip() + ";"
             auto_fixable = True
         elif "Invalid statement" in msg:
-            # Orphan identifier case: e.g. "ww"
-            # Try to extract variable name from message
             m = re.search(r"'([^']+)'", msg)
             var = m.group(1) if m else "x"
             fix_text = f"Invalid statement – did you mean to declare '{var}'? Suggested: int {var} = 0;"
@@ -92,11 +81,9 @@ def generate_suggestions(parser_result, error_result, symbol_table, source_code,
             'original_line': line_text
         })
         sid += 1
-    
-    # 2. Duplicate / type mismatch warnings
+
     for w in error_result.get('duplicate_warnings', []):
         line_num = w['line_number']
-        # Distinguish type_mismatch vs duplicate
         is_type = w.get('warning_type') == 'TYPE_MISMATCH'
         var_name = w.get('variable_name', 'x')
         
@@ -115,7 +102,7 @@ def generate_suggestions(parser_result, error_result, symbol_table, source_code,
             'line_number': line_num,
             'issue': w['message'],
             'fix': fix_text,
-            'auto_fixable': not is_type,  # type mismatch = manual review
+            'auto_fixable': not is_type,  
             'fixed_code_snippet': f"// FIXED: {get_line(line_num).strip()}" if not is_type else get_line(line_num),
             'health_impact': health_impact,
             'category': category,
@@ -123,8 +110,7 @@ def generate_suggestions(parser_result, error_result, symbol_table, source_code,
             'original_line': get_line(line_num)
         })
         sid += 1
-    
-    # 3. Undeclared variables
+
     for e in error_result.get('undeclared_errors', []):
         line_num = e['line_number']
         var_name = e['variable_name']
@@ -143,11 +129,9 @@ def generate_suggestions(parser_result, error_result, symbol_table, source_code,
         })
         sid += 1
     
-    # Sort by severity then health impact desc
     severity_order = {'ERROR': 0, 'WARNING': 1, 'INFO': 2}
     suggestions.sort(key=lambda x: (severity_order.get(x['severity'], 3), -x['health_impact']))
-    
-    # Re-number
+
     for idx, s in enumerate(suggestions, 1):
         s['suggestion_id'] = idx
     
@@ -167,7 +151,6 @@ def apply_autofix(source_code, suggestions, selected_ids=None):
     else:
         to_apply = [s for s in suggestions if s['suggestion_id'] in selected_ids and s['auto_fixable']]
     
-    # Group by line, take first (highest priority)
     by_line = {}
     for s in to_apply:
         ln = s['line_number']
@@ -186,13 +169,11 @@ def apply_autofix(source_code, suggestions, selected_ids=None):
         original = new_lines[idx]
         
         if cat == 'syntax':
-            # Missing semicolon / return semicolon
             if "Missing ';'" in s['issue'] or "return" in s['issue'].lower():
                 if not original.rstrip().endswith(';'):
                     new_lines[idx] = original.rstrip() + ';'
                     applied += 1
                     continue
-            # if/while/for (
             if "Expected '(' after 'if'" in s['issue']:
                 new_lines[idx] = original.replace('if ', 'if (', 1)
                 if ')' not in new_lines[idx]:
@@ -223,10 +204,8 @@ def apply_autofix(source_code, suggestions, selected_ids=None):
                     applied += 1
                     continue
             if "Invalid statement" in s['issue']:
-                # Orphan identifier – convert to int declaration
                 m = re.search(r"'([^']+)'", s['issue'])
                 var = m.group(1) if m else s.get('variable_name', 'x')
-                # Only replace if line is just the identifier (with optional ;)
                 stripped = original.strip().rstrip(';')
                 if re.fullmatch(r'[A-Za-z_]\w*', stripped):
                     new_lines[idx] = f"int {stripped} = 0;"
@@ -247,18 +226,14 @@ def apply_autofix(source_code, suggestions, selected_ids=None):
             continue
         
         elif cat == 'type_mismatch':
-            # Don't auto-fix type mismatches – needs human review
             continue
         
-        # Generic fallback
         fixed = s.get('fixed_code_snippet', '').strip()
         if fixed and len(fixed) < 200 and (';' in fixed or '(' in fixed) and not fixed.startswith('// FIXED'):
-            # avoid overwriting with comment-only fixes unless it's duplicate
             if cat != 'type_mismatch':
                 new_lines[idx] = fixed
                 applied += 1
     
-    # Insert undeclared variable declarations at top
     if undeclared_inserts:
         seen_vars = set()
         unique_inserts = []

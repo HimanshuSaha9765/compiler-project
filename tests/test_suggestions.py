@@ -1,6 +1,3 @@
-# CompilerX - Suggestion Engine Tests
-# Phase 8.1
-
 from lexer.lexer import analyze_lexical
 from parser.parser import analyze_syntax
 from analyzer.symbol_table import build_symbol_table
@@ -29,7 +26,6 @@ def test_autofix_adds_missing_semicolon():
 def test_undeclared_variable_suggestion():
     s = suggest("x = 5;")
     assert len(s) >= 1
-    # should suggest declaring x
     assert any('x' in x['issue'].lower() for x in s)
 
 def test_health_gain_prediction():
@@ -39,10 +35,8 @@ def test_health_gain_prediction():
     assert gain >= 0
 
 def test_autofix_orphan_identifier():
-    # Phase 8 advanced: ww
     code = "ww"
     s = suggest(code)
     fixed, applied = apply_autofix(code, s)
-    # should try to fix to int ww = 0;
     assert applied >= 0
     assert 'ww' in fixed.lower()

@@ -1,4 +1,3 @@
-# CompilerX - Diagnostics Tests
 import time
 from analyzer.diagnostics import generate_diagnostics
 
@@ -29,7 +28,6 @@ def test_health_score_never_negative():
     assert d['health_score'] >= 0
 
 def test_health_label_ranges():
-    # Just verify labels exist and score is int
     for errs in [0, 2, 5, 10, 30]:
         d = generate_diagnostics({'total_count': 10}, {'total_errors': errs}, {'total_warnings': 0, 'total_undeclared': 0}, {'total_count': 1}, time.time()*1000)
         assert d['health_label'] in ['Excellent', 'Good', 'Fair', 'Poor', 'Critical']

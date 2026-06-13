@@ -1,6 +1,3 @@
-# CompilerX - Text Report Exporter
-# Phase 8
-
 def generate_text_report(analysis_data):
     d = analysis_data.get('diagnostics', {})
     lexer = analysis_data.get('lexer', {})

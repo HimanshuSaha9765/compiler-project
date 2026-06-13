@@ -7,7 +7,6 @@
 {% endblock %}
 
 {% block content %}
-<!-- Workspace Navbar -->
 <nav class="navbar navbar-dark cx-navbar cx-ws-navbar fixed-top">
   <div class="container-fluid px-3">
     <div class="d-flex align-items-center gap-3">
@@ -34,12 +33,10 @@
   </div>
 </nav>
 
-<!-- Main Workspace -->
 <div class="cx-workspace">
   <div class="container-fluid h-100">
     <div class="row g-3 h-100">
       
-      <!-- LEFT PANEL: Editor -->
       <div class="col-lg-6 d-flex flex-column">
         <div class="cx-panel h-100 d-flex flex-column">
           <div class="cx-panel-header">
@@ -82,11 +79,9 @@ return sum;"></textarea>
         </div>
       </div>
 
-      <!-- RIGHT PANEL: Results -->
       <div class="col-lg-6 d-flex flex-column">
         <div class="cx-panel h-100 d-flex flex-column">
-          
-          <!-- Placeholder State -->
+
           <div id="resultsPlaceholder" class="cx-results-placeholder flex-grow-1 d-flex align-items-center justify-content-center">
             <div class="text-center">
               <i class="fas fa-microscope fa-3x mb-3" style="color: var(--accent-blue); opacity:.8"></i>
@@ -96,7 +91,6 @@ return sum;"></textarea>
             </div>
           </div>
 
-          <!-- Results Tabs -->
           <div id="resultsContent" class="d-none flex-grow-1 d-flex flex-column" style="min-height:0">
             <ul class="nav nav-tabs cx-tabs" id="resultTabs" role="tablist">
               <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-overview">Overview</button></li>
@@ -115,7 +109,6 @@ return sum;"></textarea>
             </ul>
 
             <div class="tab-content cx-tab-content flex-grow-1" style="overflow:auto">
-              <!-- TAB 1: Overview -->
               <div class="tab-pane fade show active p-3" id="tab-overview">
                 <div class="row g-3 align-items-center mb-3">
                   <div class="col-md-4 text-center">
@@ -137,7 +130,6 @@ return sum;"></textarea>
                 </div>
               </div>
 
-              <!-- TAB 2: Tokens -->
               <div class="tab-pane fade p-3" id="tab-tokens">
                 <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
                   <div class="btn-group btn-group-sm" id="tokenFilters">
@@ -161,7 +153,6 @@ return sum;"></textarea>
                 </div>
               </div>
 
-              <!-- TAB 3: Syntax -->
               <div class="tab-pane fade p-3" id="tab-syntax">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                   <h6 class="m-0">Syntax Analysis</h6>
@@ -170,7 +161,6 @@ return sum;"></textarea>
                 <div id="syntaxResults"></div>
               </div>
 
-              <!-- TAB 4: Symbol Table -->
               <div class="tab-pane fade p-3" id="tab-symbols">
                 <div class="d-flex gap-2 mb-2">
                   <select id="symbolScopeFilter" class="form-select form-select-sm" style="max-width:180px">
@@ -195,15 +185,12 @@ return sum;"></textarea>
                   </table>
                 </div>
               </div>
-
-              <!-- TAB 5: Scope -->
               <div class="tab-pane fade p-3" id="tab-scope">
                 <h6>Scope Tree</h6>
                 <div id="scopeTree" class="cx-scope-tree"></div>
                 <div id="scopeViolations" class="mt-3"></div>
               </div>
 
-              <!-- TAB 6: Errors -->
               <div class="tab-pane fade p-3" id="tab-errors">
                 <h6>Warnings <span class="badge bg-warning text-dark" id="warnCount">0</span></h6>
                 <div id="warningsList" class="mb-3"></div>
@@ -211,12 +198,10 @@ return sum;"></textarea>
                 <div id="undeclaredList"></div>
               </div>
 
-              <!-- TAB 7: Metrics -->
               <div class="tab-pane fade p-3" id="tab-metrics">
                 <div class="row g-2" id="metricsGrid"></div>
               </div>
 
-              <!-- TAB 8: Report -->
               <div class="tab-pane fade p-3" id="tab-report">
                 <div class="d-flex gap-2 mb-2">
                   <button class="btn btn-sm cx-btn-ghost" id="btnCopyReport"><i class="fas fa-copy me-1"></i> Copy</button>
@@ -226,7 +211,6 @@ return sum;"></textarea>
                 <textarea id="reportText" class="form-control" style="height:420px; font-family: var(--font-mono); background: var(--bg-tertiary); color: var(--text-primary);" readonly></textarea>
               </div>
 
-              <!-- TAB 9: Suggestions - Phase 8.1 / 8.2 -->
               <div class="tab-pane fade p-3" id="tab-suggestions">
                 <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
                   <div>
@@ -277,7 +261,6 @@ return sum;"></textarea>
   </div>
 </div>
 
-<!-- Toast container -->
 <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
   <div id="cxToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
     <div class="d-flex">

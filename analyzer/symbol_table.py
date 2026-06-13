@@ -1,21 +1,13 @@
-# CompilerX - Symbol Table Generator
-# Phase 6
-
 def build_symbol_table(tokens, source_code=""):
-    """
-    Build symbol table from tokens
-    """
     symbols = []
     symbol_id = 1
     
     scope_level = 0
-    # simple brace tracking
     i = 0
-    declared_names = {}  # (name, scope_level) -> symbol
+    declared_names = {}  
     
     while i < len(tokens):
         t = tokens[i]
-        # update scope
         if t['token_value'] == '{':
             scope_level += 1
             i += 1
@@ -24,8 +16,6 @@ def build_symbol_table(tokens, source_code=""):
             scope_level = max(0, scope_level - 1)
             i += 1
             continue
-        
-        # variable / function declaration: KEYWORD IDENTIFIER
         if t['token_type'] == 'KEYWORD' and t['token_value'] in ('int','float','double','char','string','bool','void'):
             nxt = tokens[i+1] if i+1 < len(tokens) else None
             if nxt and nxt['token_type'] == 'IDENTIFIER':
@@ -34,8 +24,6 @@ def build_symbol_table(tokens, source_code=""):
                 nxt2 = tokens[i+2] if i+2 < len(tokens) else None
                 category = 'function' if nxt2 and nxt2['token_value'] == '(' else 'variable'
                 scope_name = 'global' if scope_level == 0 else f'local_{scope_level}'
-                
-                # find usages (simple: scan rest of tokens for same identifier)
                 used_lines = []
                 for ut in tokens:
                     if ut['token_type'] == 'IDENTIFIER' and ut['token_value'] == name and ut['line_number'] != nxt['line_number']:

@@ -1,6 +1,3 @@
-// CompilerX - Code Editor Behavior
-// Phase 3 Fixed - DOMContentLoaded, bulletproof
-
 (function() {
   function initEditor() {
     const editor = document.getElementById('sourceEditor');
@@ -40,7 +37,6 @@
       }
     });
 
-    // Language selector
     const langSelect = document.getElementById('languageSelect');
     const langBadge = document.getElementById('languageBadge');
     if (langSelect) {
@@ -49,7 +45,6 @@
       });
     }
 
-    // Clear button
     const btnClear = document.getElementById('btnClearEditor');
     if (btnClear) {
       btnClear.addEventListener('click', () => {
@@ -63,7 +58,6 @@
       });
     }
 
-    // Load sample button
     const btnSample = document.getElementById('btnLoadSample');
     if (btnSample) {
       btnSample.addEventListener('click', async () => {
@@ -85,7 +79,6 @@
       });
     }
 
-    // expose API globally, BEFORE analyzer.js runs
     window.cxEditor = {
       getCode: () => editor.value || '',
       setCode: (code) => { editor.value = code || ''; updateEditorStats(); editor.dispatchEvent(new Event('input')); }

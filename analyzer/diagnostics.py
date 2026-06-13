@@ -1,6 +1,3 @@
-# CompilerX - Compiler Diagnostics
-# Phase 7 - Advanced Health Scoring v2
-
 import time
 
 def generate_diagnostics(lexer_result, parser_result, error_detector_result, symbol_table_result, start_time_ms):
@@ -10,21 +7,17 @@ def generate_diagnostics(lexer_result, parser_result, error_detector_result, sym
     total_undeclared_errors = error_detector_result.get('total_undeclared', 0)
     total_symbols = symbol_table_result.get('total_count', 0)
     
-    # --- Advanced Health Score v2 ---
-    # Base penalties (harsher than v1 for academic rigor)
     syntax_penalty = 12 * total_syntax_errors
     undeclared_penalty = 8 * total_undeclared_errors
     warning_penalty = 5 * total_warnings
     
     score = 100 - syntax_penalty - undeclared_penalty - warning_penalty
     
-    # Critical: if parser says invalid, cap score
+
     is_valid = parser_result.get('is_valid', True)
     if not is_valid:
         score = min(score, 65)
     
-    # Error density penalty: if errors per token is high, penalize more
-    # e.g. 2 errors in 1 token = very bad code
     if total_tokens > 0:
         error_density = (total_syntax_errors + total_undeclared_errors) / max(total_tokens, 1)
         if error_density > 0.3:
@@ -34,14 +27,12 @@ def generate_diagnostics(lexer_result, parser_result, error_detector_result, sym
         elif error_density > 0.05:
             score -= 5
     
-    # Very short files with any error = harsher
     if total_tokens < 5 and (total_syntax_errors + total_undeclared_errors) > 0:
         score -= 20
     
-    # Clamp 0-100
     score = max(0, min(100, int(score)))
     
-    # Label
+
     if score >= 90:
         label = 'Excellent'
         summary = 'Code is clean and well-structured'
@@ -57,8 +48,7 @@ def generate_diagnostics(lexer_result, parser_result, error_detector_result, sym
     else:
         label = 'Critical'
         summary = 'Code has major structural problems – run Auto-Fix'
-    
-    # If zero errors, boost to perfect
+
     if total_syntax_errors == 0 and total_undeclared_errors == 0 and total_warnings == 0 and total_tokens > 0:
         score = 100
         label = 'Excellent'

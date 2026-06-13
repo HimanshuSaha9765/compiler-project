@@ -1,10 +1,5 @@
-# CompilerX - Lexical Analyzer
-# Phase 4 - Advanced v2 - C/C++/Java compatible
-# Added: /* */ block comments, better string escape handling
-
 import re
 
-# Token categories - exactly as per spec
 KEYWORDS = {
     'int', 'float', 'double', 'char', 'string', 'bool',
     'if', 'else', 'elif', 'while', 'for', 'do',
@@ -14,18 +9,14 @@ KEYWORDS = {
     'import', 'from', 'def', 'pass', 'and', 'or', 'not'
 }
 
-# Multi-character operators - check these FIRST
 MULTI_OPS = [
     '==', '!=', '<=', '>=', '+=', '-=', '*=', '/=', '%=',
     '&&', '||', '<<', '>>', '++', '--'
 ]
 
-# Single character operators
 SINGLE_OPS = set('+-*/% =<>!&|^~')
 
-# Delimiters
 DELIMITERS = set('(){}[];,.:')
-# Note: . : added per spec
 
 def tokenize(source_code):
     """
@@ -57,8 +48,6 @@ def tokenize(source_code):
         'FLOAT': 0,
         'STRING': 0
     }
-    
-    # Track block comment state across lines (for /* */)
     in_block_comment = False
     
     for line_num, line in enumerate(lines, start=1):
@@ -68,7 +57,6 @@ def tokenize(source_code):
         while col < length:
             ch = line[col]
             
-            # Handle block comment end */
             if in_block_comment:
                 if ch == '*' and col + 1 < length and line[col+1] == '/':
                     in_block_comment = False
@@ -77,34 +65,29 @@ def tokenize(source_code):
                 col += 1
                 continue
             
-            # Skip whitespace
             if ch.isspace():
                 col += 1
                 continue
             
-            # Skip // line comments
             if ch == '/' and col + 1 < length and line[col+1] == '/':
-                break  # rest of line is comment
+                break 
             
-            # Start /* block comment
+
             if ch == '/' and col + 1 < length and line[col+1] == '*':
                 in_block_comment = True
                 col += 2
                 continue
             
-            # Skip # comments (Python style)
             if ch == '#':
                 break
             
-            start_col = col + 1  # 1-indexed
-            
-            # String literal - double or single quotes
+            start_col = col + 1
+
             if ch == '"' or ch == "'":
                 quote = ch
                 col += 1
                 value = quote
                 while col < length and line[col] != quote:
-                    # handle escaped quotes
                     if line[col] == '\\' and col + 1 < length:
                         value += line[col] + line[col+1]
                         col += 2
@@ -124,8 +107,7 @@ def tokenize(source_code):
                 token_id += 1
                 counts['STRING'] += 1
                 continue
-            
-            # Number - integer or float
+
             if ch.isdigit():
                 num_str = ''
                 has_dot = False
@@ -145,8 +127,7 @@ def tokenize(source_code):
                 token_id += 1
                 counts[token_type] += 1
                 continue
-            
-            # Identifier or Keyword
+
             if ch.isalpha() or ch == '_':
                 ident = ''
                 while col < length and (line[col].isalnum() or line[col] == '_'):
@@ -163,8 +144,7 @@ def tokenize(source_code):
                 token_id += 1
                 counts[token_type] += 1
                 continue
-            
-            # Multi-character operators - check longest first
+
             matched = False
             for op in MULTI_OPS:
                 if line[col:col+len(op)] == op:
@@ -182,8 +162,7 @@ def tokenize(source_code):
                     break
             if matched:
                 continue
-            
-            # Single character operator
+
             if ch in SINGLE_OPS:
                 tokens.append({
                     'token_id': token_id,
@@ -196,8 +175,7 @@ def tokenize(source_code):
                 counts['OPERATOR'] += 1
                 col += 1
                 continue
-            
-            # Delimiter
+
             if ch in DELIMITERS:
                 tokens.append({
                     'token_id': token_id,
@@ -211,7 +189,6 @@ def tokenize(source_code):
                 col += 1
                 continue
             
-            # Unknown character - skip to avoid infinite loop
             col += 1
         
     return {
@@ -226,6 +203,5 @@ def tokenize(source_code):
         'string_count': counts['STRING']
     }
 
-# Convenience wrapper
 def analyze_lexical(source_code):
     return tokenize(source_code)

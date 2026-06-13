@@ -1,6 +1,3 @@
-# CompilerX - Source Code Metrics
-# Phase 7
-
 def calculate_metrics(source_code, tokens, symbol_table):
     lines = source_code.split('\n')
     total_lines = len(lines)
@@ -8,7 +5,6 @@ def calculate_metrics(source_code, tokens, symbol_table):
     blank_lines = total_lines - non_empty_lines
     comment_lines = sum(1 for l in lines if l.strip().startswith('//') or l.strip().startswith('#'))
     
-    # token counts
     keyword_count = sum(1 for t in tokens if t['token_type'] == 'KEYWORD')
     identifier_count = len(set(t['token_value'] for t in tokens if t['token_type'] == 'IDENTIFIER'))
     operator_count = sum(1 for t in tokens if t['token_type'] == 'OPERATOR')
@@ -17,18 +13,15 @@ def calculate_metrics(source_code, tokens, symbol_table):
     float_constants = sum(1 for t in tokens if t['token_type'] == 'FLOAT')
     string_literals = sum(1 for t in tokens if t['token_type'] == 'STRING')
     
-    # symbol counts
     symbols = symbol_table.get('symbols', [])
     function_count = sum(1 for s in symbols if s['category'] == 'function')
     variable_count = sum(1 for s in symbols if s['category'] == 'variable')
-    
-    # loop / conditional counts from tokens
+
     loop_keywords = {'for', 'while', 'do'}
     cond_keywords = {'if', 'else', 'elif'}
     loop_count = sum(1 for t in tokens if t['token_type'] == 'KEYWORD' and t['token_value'] in loop_keywords)
     conditional_count = sum(1 for t in tokens if t['token_type'] == 'KEYWORD' and t['token_value'] in cond_keywords)
     
-    # max nesting depth
     depth = max_depth = 0
     for ch in source_code:
         if ch == '{':
@@ -37,14 +30,12 @@ def calculate_metrics(source_code, tokens, symbol_table):
         elif ch == '}':
             depth = max(0, depth - 1)
     
-    # line length stats
     non_empty_text_lines = [l for l in lines if l.strip()]
     if non_empty_text_lines:
         lengths = [len(l) for l in non_empty_text_lines]
         average_line_length = round(sum(lengths) / len(lengths), 1)
         longest_len = max(lengths)
         longest_line_num = lengths.index(longest_len) + 1
-        # map to actual line number
         actual_line = 1
         count_nonempty = 0
         for idx, l in enumerate(lines, 1):

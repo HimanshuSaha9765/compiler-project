@@ -1,6 +1,3 @@
-// CompilerX - Export Handler
-// Phase 8
-
 (function(){
   function toast(msg){ if(window.showToast) showToast(msg); else console.log(msg); }
 

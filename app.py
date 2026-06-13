@@ -1,12 +1,7 @@
-# CompilerX - Advanced Compiler Front-End
-# Main Flask Application Entry Point
-# Phase 3-8 + 8.1 Suggestion Engine + 8.2 LLM Advisor
-
 from flask import Flask, render_template, request, jsonify, send_file
 import os
 import time
 
-# Compiler modules
 from lexer.lexer import analyze_lexical
 from parser.parser import analyze_syntax
 from analyzer.symbol_table import build_symbol_table
@@ -17,10 +12,8 @@ from analyzer.diagnostics import generate_diagnostics
 from exporter.text_exporter import generate_text_report
 from exporter.pdf_exporter import generate_pdf_report
 
-# Phase 8.1 - Suggestion Engine
 from analyzer.suggestion_engine import generate_suggestions, apply_autofix, predict_health_gain
 
-# Phase 8.2 - LLM Advisor (optional, fails gracefully)
 try:
     from analyzer.llm_advisor import ai_explain_suggestion, llm_status
     LLM_AVAILABLE = True
@@ -35,7 +28,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'compilerx-dev-key-2026'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 
-# In-memory last analysis for export / suggestions
 LAST_ANALYSIS = {}
 LAST_SUGGESTIONS = []
 
@@ -71,7 +63,6 @@ def analyze():
         if len(source_code) > 5000:
             return jsonify({"success": False, "error": "source_code exceeds 5000 character limit"}), 400
 
-        # Compiler pipeline
         lexer_result = analyze_lexical(source_code)
         parser_result = analyze_syntax(lexer_result['tokens'])
         symbol_table_result = build_symbol_table(lexer_result['tokens'], source_code)
@@ -101,15 +92,12 @@ def analyze():
         app.logger.error(f"Analyze error: {str(e)}", exc_info=True)
         return jsonify({"success": False, "error": "Internal server error during analysis"}), 500
 
-# ============ Phase 8.1 - Suggestion Engine Routes ============
-
 @app.route('/suggest', methods=['POST'])
 def suggest():
     """Generate fix suggestions for the last analysis, or for provided source"""
     try:
         global LAST_ANALYSIS, LAST_SUGGESTIONS
-        
-        # Allow passing source_code directly, or reuse last analysis
+
         if request.is_json:
             data = request.get_json(silent=True) or {}
             source_code = data.get('source_code')
@@ -117,7 +105,6 @@ def suggest():
             source_code = None
         
         if source_code:
-            # Run a quick analysis to get errors
             lexer_result = analyze_lexical(source_code)
             parser_result = analyze_syntax(lexer_result['tokens'])
             symbol_table_result = build_symbol_table(lexer_result['tokens'], source_code)
@@ -133,8 +120,7 @@ def suggest():
         
         suggestions = generate_suggestions(parser_result, error_result, symbol_table_result, source_code, lexer_result)
         health_gain = predict_health_gain(suggestions)
-        
-        # Get current health
+
         current_health = 0
         if LAST_ANALYSIS and 'diagnostics' in LAST_ANALYSIS:
             current_health = LAST_ANALYSIS['diagnostics'].get('health_score', 0)
@@ -172,13 +158,11 @@ def autofix():
         if not source_code:
             return jsonify({"success": False, "error": "No source_code provided and no last analysis"}), 400
         
-        selected_ids = data.get('suggestion_ids')  # None = apply all
-        
-        # Ensure we have suggestions
+        selected_ids = data.get('suggestion_ids')
+
         global LAST_SUGGESTIONS
         suggestions = LAST_SUGGESTIONS
         if not suggestions:
-            # Generate on the fly
             lexer_result = analyze_lexical(source_code)
             parser_result = analyze_syntax(lexer_result['tokens'])
             symbol_table_result = build_symbol_table(lexer_result['tokens'], source_code)
@@ -187,7 +171,6 @@ def autofix():
         
         fixed_code, applied_count = apply_autofix(source_code, suggestions, selected_ids)
         
-        # Re-analyze fixed code to get new health score
         start_ms = time.time() * 1000
         lexer2 = analyze_lexical(fixed_code)
         parser2 = analyze_syntax(lexer2['tokens'])
@@ -208,8 +191,6 @@ def autofix():
         app.logger.error(f"Autofix error: {str(e)}", exc_info=True)
         return jsonify({"success": False, "error": "Auto-fix failed"}), 500
 
-# ============ Phase 8.2 - LLM Explain Route ============
-
 @app.route('/ai_explain', methods=['POST'])
 def ai_explain():
     """Get AI explanation for a specific suggestion"""
@@ -221,7 +202,6 @@ def ai_explain():
         source_code = data.get('source_code', '')
         if not suggestion:
             return jsonify({"success": False, "error": "Missing suggestion object"}), 400
-        # Use last analysis diagnostics if available
         diagnostics = LAST_ANALYSIS.get('diagnostics', {}) if LAST_ANALYSIS else {}
         result = ai_explain_suggestion(source_code, suggestion, diagnostics)
         return jsonify(result)
@@ -233,8 +213,6 @@ def ai_explain():
 def api_llm_status():
     status = llm_status() if LLM_AVAILABLE else {'enabled': False, 'provider': 'Rule-Based (Offline)', 'mode': 'offline'}
     return jsonify({"success": True, "llm": status})
-
-# ============ Export Routes ============
 
 @app.route('/export/text')
 def export_text():
@@ -262,8 +240,6 @@ def export_pdf():
         app.logger.error(f"Export pdf error: {e}", exc_info=True)
         return jsonify({"success": False, "error": "Export failed"}), 500
 
-# ============ Sample / Health ============
-
 @app.route('/api/sample')
 def api_sample():
     try:
@@ -272,7 +248,6 @@ def api_sample():
             {"id":2,"name":"If-Else Example","language":"c","code":"int x = 15;\nint y = 10;\n\nif (x > y) {\n    int max = x;\n    return max;\n} else {\n    int max = y;\n    return max;\n}"},
             {"id":3,"name":"Loop Example","language":"c","code":"int sum = 0;\nint i = 0;\n\nfor (int i = 0; i < 10; i++) {\n    sum = sum + i;\n}\n\nwhile (sum > 0) {\n    sum = sum - 1;\n}\n\nreturn sum;"},
             {"id":4,"name":"Function Example","language":"c","code":"int add(int a, int b) {\n    int result = a + b;\n    return result;\n}\n\nint main() {\n    int x = 5;\n    int y = 7;\n    int z = add(x, y);\n    return z;\n}"},
-            # Intentionally broken sample for testing suggestions
             {"id":5,"name":"Broken Code (Test Fix-It)","language":"c","code":"int a = 10\nint b = 20\nint a = 5\n\nx = a + b\nif x > 0 {\n  return x\n}\n"}
         ]
         sid = request.args.get('id', type=int)

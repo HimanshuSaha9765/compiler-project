@@ -1,7 +1,3 @@
-/* CompilerX - Workspace Styles
-   Phase 3 - 8.2 Full
-*/
-
 .cx-ws-navbar { border-bottom: 1px solid var(--border-color); }
 .cx-back-link { color: var(--text-secondary); font-size: 1.1rem; }
 .cx-back-link:hover { color: var(--text-primary); }
@@ -19,7 +15,6 @@
   background: rgba(255,255,255,.04);
 }
 
-/* Workspace layout */
 .cx-workspace {
   padding-top: 72px;
   height: 100vh;
@@ -41,7 +36,6 @@
 .cx-panel-title { font-weight: 600; }
 .cx-panel-subtitle { color: var(--text-secondary); font-size: .85rem; }
 
-/* Editor */
 .cx-editor-wrap {
   display:flex;
   border: 1px solid var(--border-color);
@@ -91,7 +85,6 @@
   font-weight: 600;
 }
 
-/* Results */
 .cx-results-placeholder {
   color: var(--text-secondary);
   border: 1px dashed var(--border-color);
@@ -118,7 +111,6 @@
 }
 .cx-tab-content { background: transparent; }
 
-/* Score */
 .cx-score-circle {
   width: 110px; height:110px; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
@@ -137,7 +129,6 @@
 .cx-stat-num { font-size: 1.4rem; font-weight: 700; }
 .cx-stat-label { color: var(--text-secondary); font-size: .8rem; }
 
-/* Scope tree */
 .cx-scope-tree .scope-node {
   border:1px solid var(--border-color);
   border-radius: var(--radius-sm);
@@ -152,7 +143,6 @@
   font-family: var(--font-mono);
 }
 
-/* Metrics */
 .metric-card {
   background: var(--bg-tertiary);
   border:1px solid var(--border-color);
@@ -162,12 +152,10 @@
 .metric-num { font-size:1.3rem; font-weight:700; }
 .metric-label { color: var(--text-secondary); font-size:.8rem; }
 
-/* Tables */
 .table-responsive { max-height: 520px; }
 .sortable { cursor: pointer; }
 .sortable:hover { color: var(--accent-blue); }
 
-/* Alerts */
 .alert-error {
   background: rgba(239,68,68,.08);
   border:1px solid rgba(239,68,68,.3);
@@ -192,7 +180,6 @@
   padding: .6rem .8rem;
 }
 
-/* ===== Phase 8.1 / 8.2 - Suggestions UI ===== */
 .cx-suggestion-card {
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
@@ -219,8 +206,6 @@
   color: #bfdbfe;
   white-space: pre-wrap;
 }
-
-/* Mobile */
 @media (max-width: 992px) {
   .cx-workspace { height: auto; }
 }

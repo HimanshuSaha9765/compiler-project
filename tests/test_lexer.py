@@ -1,6 +1,3 @@
-# CompilerX - Lexer Tests
-# Phase 9 - pytest
-
 import pytest
 from lexer.lexer import analyze_lexical
 
@@ -59,4 +56,4 @@ def test_multi_line_code_tokenization():
 }"""
     result = analyze_lexical(code)
     assert result['total_count'] > 10
-    assert result['keyword_count'] >= 3  # int, int, int, return
+    assert result['keyword_count'] >= 3
