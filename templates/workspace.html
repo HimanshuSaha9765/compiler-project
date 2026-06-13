@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block title %}Compiler Workspace - CompilerX{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/workspace.css') }}">
+{% endblock %}
+
+{% block content %}
+<!-- Workspace Navbar -->
+<nav class="navbar navbar-dark cx-navbar cx-ws-navbar fixed-top">
+  <div class="container-fluid px-3">
+    <div class="d-flex align-items-center gap-3">
+      <a href="/" class="cx-back-link"><i class="fas fa-arrow-left"></i></a>
+      <span class="cx-logo"><i class="fas fa-code"></i> CompilerX</span>
+      <span class="cx-ws-title d-none d-md-inline">Compiler Workspace</span>
+      {% if llm_status and llm_status.enabled %}
+      <span class="badge bg-success" style="font-size:.7rem">AI On: {{ llm_status.provider }}</span>
+      {% else %}
+      <span class="badge bg-secondary" style="font-size:.7rem">Offline Mode</span>
+      {% endif %}
+    </div>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm cx-btn-ghost" id="btnLoadSample"><i class="fas fa-flask me-1"></i> Load Sample</button>
+      <button class="btn btn-sm cx-btn-ghost" id="btnClearEditor"><i class="fas fa-eraser me-1"></i> Clear</button>
+      <div class="dropdown">
+        <button class="btn btn-sm cx-btn-ghost dropdown-toggle" data-bs-toggle="dropdown"><i class="fas fa-download me-1"></i> Export</button>
+        <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end">
+          <li><a class="dropdown-item" href="#" id="btnExportPdf"><i class="fas fa-file-pdf me-2"></i>PDF Report</a></li>
+          <li><a class="dropdown-item" href="#" id="btnExportText"><i class="fas fa-file-lines me-2"></i>Text Report</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<!-- Main Workspace -->
+<div class="cx-workspace">
+  <div class="container-fluid h-100">
+    <div class="row g-3 h-100">
+      
+      <!-- LEFT PANEL: Editor -->
+      <div class="col-lg-6 d-flex flex-column">
+        <div class="cx-panel h-100 d-flex flex-column">
+          <div class="cx-panel-header">
+            <div>
+              <div class="cx-panel-title">Source Code Editor</div>
+              <div class="cx-panel-subtitle">Enter your C/C++ style code below</div>
+            </div>
+            <span class="badge bg-secondary" id="languageBadge">C</span>
+          </div>
+          
+          <div class="cx-editor-wrap flex-grow-1">
+            <div class="cx-line-numbers" id="lineNumbers">1</div>
+            <textarea id="sourceEditor" class="cx-editor" spellcheck="false" placeholder="// Type your code here...
+int a = 10;
+int b = 20;
+int sum = a + b;
+return sum;"></textarea>
+          </div>
+
+          <div class="cx-editor-footer">
+            <div class="cx-editor-stats">
+              <span><i class="fas fa-align-left"></i> Lines: <strong id="lineCount">0</strong></span>
+              <span class="ms-3"><i class="fas fa-text-width"></i> Chars: <strong id="charCount">0</strong></span>
+              <span class="ms-3 text-muted" id="editorStatus">Ready</span>
+            </div>
+            <div>
+              <select id="languageSelect" class="form-select form-select-sm cx-lang-select">
+                <option value="c">C</option>
+                <option value="cpp">C++</option>
+                <option value="java">Java</option>
+              </select>
+            </div>
+          </div>
+
+          <button id="btnAnalyze" class="btn btn-primary cx-btn-analyze w-100 mt-3">
+            <span id="analyzeLabel"><i class="fas fa-play me-2"></i>Analyze Code</span>
+            <span id="analyzeSpinner" class="d-none"><span class="spinner-border spinner-border-sm me-2"></span>Analyzing...</span>
+          </button>
+          <div id="editorError" class="alert alert-danger mt-2 d-none" role="alert"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT PANEL: Results -->
+      <div class="col-lg-6 d-flex flex-column">
+        <div class="cx-panel h-100 d-flex flex-column">
+          
+          <!-- Placeholder State -->
+          <div id="resultsPlaceholder" class="cx-results-placeholder flex-grow-1 d-flex align-items-center justify-content-center">
+            <div class="text-center">
+              <i class="fas fa-microscope fa-3x mb-3" style="color: var(--accent-blue); opacity:.8"></i>
+              <h5>Run analysis to see results here</h5>
+              <p class="text-secondary">Tokens, syntax errors, symbol table, scope tree, metrics, diagnostics, and <strong>AI Suggestions</strong> will appear in 9 tabs.</p>
+              <p class="small text-muted">Phase 8.1: Suggestion Engine • Phase 8.2: LLM Advisor</p>
+            </div>
+          </div>
+
+          <!-- Results Tabs -->
+          <div id="resultsContent" class="d-none flex-grow-1 d-flex flex-column" style="min-height:0">
+            <ul class="nav nav-tabs cx-tabs" id="resultTabs" role="tablist">
+              <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-overview">Overview</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-tokens">Tokens</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-syntax">Syntax</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-symbols">Symbols</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-scope">Scope</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-errors">Errors</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-metrics">Metrics</button></li>
+              <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-report">Report</button></li>
+              <li class="nav-item">
+                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-suggestions" id="suggestionsTabBtn">
+                  💡 Suggestions <span class="badge bg-warning text-dark ms-1" id="suggestionCountBadge" style="display:none">0</span>
+                </button>
+              </li>
+            </ul>
+
+            <div class="tab-content cx-tab-content flex-grow-1" style="overflow:auto">
+              <!-- TAB 1: Overview -->
+              <div class="tab-pane fade show active p-3" id="tab-overview">
+                <div class="row g-3 align-items-center mb-3">
+                  <div class="col-md-4 text-center">
+                    <div class="cx-score-circle" id="scoreCircle"><span id="scoreValue">--</span></div>
+                    <div class="mt-2"><span class="badge" id="healthBadge">--</span></div>
+                    <div class="small text-secondary mt-1" id="healthSummary">Run analysis</div>
+                  </div>
+                  <div class="col-md-8">
+                    <div class="row g-2 text-center">
+                      <div class="col-6 col-md-3"><div class="cx-stat"><div class="cx-stat-num" id="statTokens">0</div><div class="cx-stat-label">Tokens</div></div></div>
+                      <div class="col-6 col-md-3"><div class="cx-stat"><div class="cx-stat-num text-danger" id="statErrors">0</div><div class="cx-stat-label">Errors</div></div></div>
+                      <div class="col-6 col-md-3"><div class="cx-stat"><div class="cx-stat-num" style="color:var(--accent-yellow)" id="statWarnings">0</div><div class="cx-stat-label">Warnings</div></div></div>
+                      <div class="col-6 col-md-3"><div class="cx-stat"><div class="cx-stat-num" style="color:var(--accent-green)" id="statSymbols">0</div><div class="cx-stat-label">Symbols</div></div></div>
+                    </div>
+                    <div class="small text-secondary mt-2">Analysis time: <span id="analysisTime">--</span> ms
+                      <span id="suggestionPill" class="ms-3 d-none"><a href="#" id="gotoSuggestionsLink" class="text-warning">💡 <span id="suggestionPillCount">0</span> suggestions available →</a></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- TAB 2: Tokens -->
+              <div class="tab-pane fade p-3" id="tab-tokens">
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                  <div class="btn-group btn-group-sm" id="tokenFilters">
+                    <button class="btn btn-outline-light active" data-filter="ALL">All</button>
+                    <button class="btn btn-outline-light" data-filter="KEYWORD">Keywords</button>
+                    <button class="btn btn-outline-light" data-filter="IDENTIFIER">Identifiers</button>
+                    <button class="btn btn-outline-light" data-filter="OPERATOR">Operators</button>
+                    <button class="btn btn-outline-light" data-filter="DELIMITER">Delimiters</button>
+                    <button class="btn btn-outline-light" data-filter="INTEGER">Integers</button>
+                    <button class="btn btn-outline-light" data-filter="FLOAT">Floats</button>
+                    <button class="btn btn-outline-light" data-filter="STRING">Strings</button>
+                  </div>
+                  <input id="tokenSearch" class="form-control form-control-sm ms-auto" style="max-width:220px" placeholder="Search token value…">
+                  <span class="small text-secondary">Showing <span id="tokenVisibleCount">0</span> / <span id="tokenTotalCount">0</span></span>
+                </div>
+                <div class="table-responsive">
+                  <table class="table cx-table table-sm" id="tokenTable">
+                    <thead><tr><th>#</th><th>Value</th><th>Type</th><th>Line</th><th>Col</th></tr></thead>
+                    <tbody id="tokenTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- TAB 3: Syntax -->
+              <div class="tab-pane fade p-3" id="tab-syntax">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <h6 class="m-0">Syntax Analysis</h6>
+                  <span class="badge bg-secondary" id="syntaxCount">0 errors</span>
+                </div>
+                <div id="syntaxResults"></div>
+              </div>
+
+              <!-- TAB 4: Symbol Table -->
+              <div class="tab-pane fade p-3" id="tab-symbols">
+                <div class="d-flex gap-2 mb-2">
+                  <select id="symbolScopeFilter" class="form-select form-select-sm" style="max-width:180px">
+                    <option value="all">All scopes</option>
+                    <option value="global">Global only</option>
+                    <option value="local">Local only</option>
+                  </select>
+                  <span class="small text-secondary ms-auto">Total: <span id="symbolTotalCount">0</span></span>
+                </div>
+                <div class="table-responsive">
+                  <table class="table cx-table table-sm" id="symbolTable">
+                    <thead><tr>
+                      <th class="sortable" data-col="0">#</th>
+                      <th class="sortable" data-col="1">Name</th>
+                      <th class="sortable" data-col="2">Type</th>
+                      <th>Category</th>
+                      <th>Scope</th>
+                      <th>Level</th>
+                      <th>Line</th>
+                    </tr></thead>
+                    <tbody id="symbolTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+
+              <!-- TAB 5: Scope -->
+              <div class="tab-pane fade p-3" id="tab-scope">
+                <h6>Scope Tree</h6>
+                <div id="scopeTree" class="cx-scope-tree"></div>
+                <div id="scopeViolations" class="mt-3"></div>
+              </div>
+
+              <!-- TAB 6: Errors -->
+              <div class="tab-pane fade p-3" id="tab-errors">
+                <h6>Warnings <span class="badge bg-warning text-dark" id="warnCount">0</span></h6>
+                <div id="warningsList" class="mb-3"></div>
+                <h6>Undeclared Variables <span class="badge bg-danger" id="undeclaredCount">0</span></h6>
+                <div id="undeclaredList"></div>
+              </div>
+
+              <!-- TAB 7: Metrics -->
+              <div class="tab-pane fade p-3" id="tab-metrics">
+                <div class="row g-2" id="metricsGrid"></div>
+              </div>
+
+              <!-- TAB 8: Report -->
+              <div class="tab-pane fade p-3" id="tab-report">
+                <div class="d-flex gap-2 mb-2">
+                  <button class="btn btn-sm cx-btn-ghost" id="btnCopyReport"><i class="fas fa-copy me-1"></i> Copy</button>
+                  <button class="btn btn-sm cx-btn-ghost" id="btnDownloadTxt"><i class="fas fa-file-lines me-1"></i> Download .txt</button>
+                  <button class="btn btn-sm cx-btn-ghost" id="btnDownloadPdf"><i class="fas fa-file-pdf me-1"></i> Download PDF</button>
+                </div>
+                <textarea id="reportText" class="form-control" style="height:420px; font-family: var(--font-mono); background: var(--bg-tertiary); color: var(--text-primary);" readonly></textarea>
+              </div>
+
+              <!-- TAB 9: Suggestions - Phase 8.1 / 8.2 -->
+              <div class="tab-pane fade p-3" id="tab-suggestions">
+                <div class="d-flex flex-wrap align-items-center justify-content-between mb-3 gap-2">
+                  <div>
+                    <h6 class="m-0">💡 Code Suggestions – Reach 100% Health</h6>
+                    <div class="small text-secondary" id="suggestionSummary">Run Analyze first</div>
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button class="btn btn-sm btn-success" id="btnApplyAllFixes" disabled><i class="fas fa-wand-magic-sparkles me-1"></i> Apply All Fixes</button>
+                    <button class="btn btn-sm cx-btn-ghost" id="btnRefreshSuggestions"><i class="fas fa-rotate me-1"></i> Refresh</button>
+                  </div>
+                </div>
+
+                <div id="suggestionHealthBanner" class="alert alert-info d-none" style="background: rgba(59,130,246,0.08); border-color: rgba(59,130,246,0.3); color: #bfdbfe;">
+                  <strong id="suggestionHealthText">0 issues found</strong>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-lg-6">
+                    <h6 class="text-secondary small text-uppercase">Issues Found</h6>
+                    <div id="suggestionsList" style="max-height: 520px; overflow:auto">
+                      <div class="text-secondary">Run Analyze → then click Refresh Suggestions</div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <h6 class="text-secondary small text-uppercase">Fixed Code Preview</h6>
+                    <div class="cx-diff-wrap">
+                      <div class="small text-secondary mb-1">After auto-fix:</div>
+                      <textarea id="fixedCodePreview" class="form-control" style="height: 320px; font-family: var(--font-mono); background: var(--bg-tertiary); color: #86efac;" readonly placeholder="Fixed code will appear here..."></textarea>
+                      <div class="d-flex gap-2 mt-2">
+                        <button class="btn btn-sm btn-primary" id="btnReplaceInEditor" disabled><i class="fas fa-right-left me-1"></i> Replace in Editor & Re-analyze</button>
+                        <button class="btn btn-sm cx-btn-ghost" id="btnCopyFixed"><i class="fas fa-copy me-1"></i> Copy</button>
+                      </div>
+                    </div>
+                    <div class="mt-3 p-2 rounded" style="background: var(--bg-tertiary); border:1px solid var(--border-color)">
+                      <div class="small text-secondary">AI Explanation <span class="badge bg-secondary" id="aiBadge">Offline</span></div>
+                      <div id="aiExplanationBox" class="small mt-1" style="min-height: 60px">Click "✨ AI Explain" on a suggestion to get a friendly explanation.</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 1080">
+  <div id="cxToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="d-flex">
+      <div class="toast-body" id="cxToastBody">Done</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+<script src="{{ url_for('static', filename='js/analyzer.js') }}"></script>
+<script src="{{ url_for('static', filename='js/export.js') }}"></script>
+<script src="{{ url_for('static', filename='js/suggestions.js') }}"></script>
+{% endblock %}

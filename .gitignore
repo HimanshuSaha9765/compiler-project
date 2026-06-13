@@ -1,0 +1,79 @@
+# CompilerX - Git Ignore File
+# Files and folders Git should NOT track
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+
+# Testing / Coverage
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache/
+.pytest_cache/
+coverage.xml
+*.cover
+.hypothesis/
+
+# VS Code
+.vscode/
+*.code-workspace
+.history/
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Flask
+instance/
+.webassets-cache
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.local
+
+# Exported reports (generated at runtime)
+*.pdf
+*.txt
+!requirements.txt
+
+# PyCharm
+.idea/

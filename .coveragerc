@@ -1,0 +1,23 @@
+[run]
+source = lexer, parser, analyzer
+omit = 
+    */tests/*
+    */__init__.py
+    analyzer/llm_advisor.py
+    */exporter/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if False:
+    if TYPE_CHECKING:
+
+show_missing = true
+skip_covered = false
+
+[html]
+directory = htmlcov
